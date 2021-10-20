@@ -26,7 +26,7 @@ def top_ten_occupations(filename: str):
     pass
 
 
-with open("input1.txt", "r") as f:
+with open("input_files/input1.txt", "r") as f:
     print(type(f))
     header = get_header(f)
     print(header)
