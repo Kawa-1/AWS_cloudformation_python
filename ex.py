@@ -1,56 +1,68 @@
 from __future__ import annotations
-import time
+# Probably defaultdict will be useful in my case...
+from collections import defaultdict
 
-def get_header(header: file_handler) -> dict:
-    """Read first line of file (header) to get the attributes of corresponding fields from data
+class ZipCodesUS:
 
-        Parameters
-        ----------
-        header: file_handler, _io.TextIOWrapper
-            We are passing just opened file
+    @staticmethod
+    def get_state_code(path_to_uszip: str) -> dict:
+        """Open the file coressponding to US Zip Codes to get dict where keys are postal_codes and values are
+            state_ids
 
-        Returns
-        -------
-        dict
-            a dictionary of attributes as keys and corresponding indexes in data section as value
-            >>> {'CASE_NUMBER': 1, 'CASE_STATUS': 2, 'CASE_SUBMITTED': 3,...}"""
-    header = header.readline()
-    header = header.split(';')
-    # removing unnecessary item from list; blank string
-    header.pop(0)
-    return {field.upper().rstrip('\n'): index
-              for index, field in enumerate(header, start=1)}
+            Parameters
+            -----------
+            path_to_uszip: str
+                path to uszips.csv
 
-print(help(get_header))
+            Returns
+            -------
+            dict
+                a dictionary with keys as postal codes and values as state_ids"""
 
-def top_ten_occupations(filename: str):
-    pass
+        with open(path_to_uszip, "r") as f:
+            state_code = {}
+            # skip header
+            f.readline()
+            for index, line in enumerate(f):
+                line = line.split(",")
+                # 0 - postal_code; 4 - state_id
+                state_code.update({line[0].strip("\""): line[4].strip("\"")})
 
-with open("others/uszips.csv", "r") as f:
-    start = time.perf_counter()
-    state_code = {}
-    # skip header
-    f.readline()
-    for nr_row, line in enumerate(f):
-        line = line.split(",")
-        # indexes: 0 - postal_code; 4 - state_id
-        state_code.update({line[0].strip("\""): line[4].strip("\"")})
+            return state_code
 
-    end = time.perf_counter()
-    print(end - start)
-    print(state_code)
+class VisaApplications:
 
+    def __init__(self, file_input: str):
+        self.file_input = file_input
 
-with open("input_files/input1.txt", "r") as f:
-    print(type(f))
-    header = get_header(f)
-    print(header)
-    print(len(header))
-    for line in f:
-        line = line.split(';')
-        line.pop()
-        print(line[header.get("WORKSITE_STATE")], line[header.get("WORKSITE_POSTAL_CODE")], "|", line[header.get("SOC_NAME")],
-            "?", line[header.get("NAICS_CODE")], sep=" ")
+    def get_header(self, header: file_handler) -> dict:
+        """Read first line of colon-seperated value file (header) to get the attributes of corresponding fields from data
+
+            Parameters
+            ----------
+            header: _io.TextIOWrapper (file_handler)
+                We are passing just opened file
+
+            Returns
+            -------
+            dict
+                a dictionary of attributes as keys and corresponding indexes in data section as value
+                >>> {'CASE_NUMBER': 1, 'CASE_STATUS': 2, 'CASE_SUBMITTED': 3,...}"""
+
+        header = header.readline()
+        header = header.split(';')
+        # removing unnecessary item from list - blank string
+        header.pop(0)
+        return {field.upper().rstrip('\n'): index
+                for index, field in enumerate(header, start=1)}
+
+    def get_top_10_occupations(self):
+        # TODO: implement method and invent idea for it
+        pass
+
+    def get_top_10_states(self):
+        # TODO: implement method and invent idea for it
+        pass
     
 
     
