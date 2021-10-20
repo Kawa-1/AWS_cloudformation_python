@@ -35,7 +35,8 @@ class VisaApplications:
     def __init__(self, file_input: str):
         self.file_input = file_input
 
-    def get_header(self, header: file_handler) -> dict:
+    @staticmethod
+    def get_header(header: file_handler) -> dict:
         """Read first line of colon-seperated value file (header) to get the attributes of corresponding fields from data
 
             Parameters
@@ -56,6 +57,12 @@ class VisaApplications:
         return {field.upper().rstrip('\n'): index
                 for index, field in enumerate(header, start=1)}
 
+    @staticmethod
+    def get_percent(item: list, index: int, totality: int) -> list:
+        percent_col = "{:.1f}".format(item[1][index]/totality * 100)
+        item[1].append(percent_col + "%")
+        return item
+
     def get_top_10_occupations(self):
         # TODO: implement method and invent idea for it
         output_headers = ("TOP_OCCUPATIONS", "NUMBER_{}_APPLICATIONS".format(self.desired_case_status), "PERCENTAGE")
@@ -64,23 +71,32 @@ class VisaApplications:
             soc_name_ind = header.get("SOC_NAME")
             case_status_ind = header.get("CASE_STATUS")
             naics_code_ind = header.get("NAICS_CODE")
-            output = {}
+            output_data = {}
             diff_soc_same_naics = defaultdict(list)
+            count_desired_case_status = 0
             for index, line in enumerate(f):
                 line = line.split(";")
                 line.pop()
                 if line[case_status_ind] == self.desired_case_status:
-                    if not output.get(line[naics_code_ind]):
-                        output.update({line[naics_code_ind]: []})
-                        output.get(line[naics_code_ind]).append(line[soc_name_ind].strip("\""))
-                        output.get(line[naics_code_ind]).append(1)
+                    count_desired_case_status += 1
+                    if not output_data.get(line[naics_code_ind]):
+                        output_data.update({line[naics_code_ind]: []})
+                        output_data.get(line[naics_code_ind]).extend([line[soc_name_ind].strip("\""), 1])
 
                     else:
-                        output.get(line[naics_code_ind])[1] += 1
-            print(output)
-            output = sorted(output.items(), key=lambda elem: (-elem[1][1], elem[1][0]))
+                        output_data.get(line[naics_code_ind])[1] += 1
 
-            print(output)
+            # Desired sorting with descending number and ascending string, just in case equal numbers
+            output_data = sorted(output_data.items(), key=lambda elem: (-elem[1][1], elem[1][0]))
+            # Adding percent column
+            output_data = list(map(lambda x: self.get_percent(x, 1, count_desired_case_status), output_data))
+
+            with open("output.txt", "w") as f_out:
+                output_headers = ";".join(map(str, output_headers))
+                f_out.write(output_headers + "\n")
+                for data in output_data:
+                    data = ";".join(map(str, data[1]))
+                    f_out.write(data + "\n")
 
     def get_top_10_states(self):
         # TODO: implement method and invent idea for it
