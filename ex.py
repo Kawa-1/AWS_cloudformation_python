@@ -61,15 +61,26 @@ class VisaApplications:
         output_headers = ("TOP_OCCUPATIONS", "NUMBER_{}_APPLICATIONS".format(self.desired_case_status), "PERCENTAGE")
         with open(self.file_input, "r") as f:
             header = self.get_header(f)
-            # variable to count sum of "NUMBER_{}_APPLICATIONS".format(self.desired_case_status); not sure if needed...
-            # count = 0
-            output = defaultdict(list)
+            soc_name_ind = header.get("SOC_NAME")
+            case_status_ind = header.get("CASE_STATUS")
+            naics_code_ind = header.get("NAICS_CODE")
+            # output = defaultdict(list)
+            output = {}
+            diff_soc_same_naics = defaultdict(list)
             for index, line in enumerate(f):
                 line = line.split(";")
                 line.pop()
-                if header.get("CASE_STATUS") == self.desired_case_status:
-                    if line[header.get("SOC_NAME")] == output.get(line[header.get("NAICS_CODE")[0]]):
-                        pass
+                if line[case_status_ind] == self.desired_case_status:
+                    if not output.get(line[naics_code_ind]):
+                        # output[line[naics_code_ind]].append([line[soc_name_ind].strip("\""), 1])
+                        output.update({line[naics_code_ind]: []})
+                        output.get(line[naics_code_ind]).append(line[soc_name_ind].strip("\""))
+                        output.get(line[naics_code_ind]).append(1)
+
+                    else:
+                        output.get(line[naics_code_ind])[1] += 1
+
+            print(output)
 
     def get_top_10_states(self):
         # TODO: implement method and invent idea for it
