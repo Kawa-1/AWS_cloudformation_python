@@ -58,7 +58,18 @@ class VisaApplications:
 
     def get_top_10_occupations(self):
         # TODO: implement method and invent idea for it
-        pass
+        output_headers = ("TOP_OCCUPATIONS", "NUMBER_{}_APPLICATIONS".format(self.desired_case_status), "PERCENTAGE")
+        with open(self.file_input, "r") as f:
+            header = self.get_header(f)
+            # variable to count sum of "NUMBER_{}_APPLICATIONS".format(self.desired_case_status); not sure if needed...
+            # count = 0
+            output = defaultdict(list)
+            for index, line in enumerate(f):
+                line = line.split(";")
+                line.pop()
+                if header.get("CASE_STATUS") == self.desired_case_status:
+                    if line[header.get("SOC_NAME")] == output.get(line[header.get("NAICS_CODE")[0]]):
+                        pass
 
     def get_top_10_states(self):
         # TODO: implement method and invent idea for it
