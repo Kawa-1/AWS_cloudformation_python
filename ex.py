@@ -64,7 +64,6 @@ class VisaApplications:
             soc_name_ind = header.get("SOC_NAME")
             case_status_ind = header.get("CASE_STATUS")
             naics_code_ind = header.get("NAICS_CODE")
-            # output = defaultdict(list)
             output = {}
             diff_soc_same_naics = defaultdict(list)
             for index, line in enumerate(f):
@@ -72,13 +71,14 @@ class VisaApplications:
                 line.pop()
                 if line[case_status_ind] == self.desired_case_status:
                     if not output.get(line[naics_code_ind]):
-                        # output[line[naics_code_ind]].append([line[soc_name_ind].strip("\""), 1])
                         output.update({line[naics_code_ind]: []})
                         output.get(line[naics_code_ind]).append(line[soc_name_ind].strip("\""))
                         output.get(line[naics_code_ind]).append(1)
 
                     else:
                         output.get(line[naics_code_ind])[1] += 1
+            print(output)
+            output = sorted(output.items(), key=lambda elem: (-elem[1][1], elem[1][0]))
 
             print(output)
 
