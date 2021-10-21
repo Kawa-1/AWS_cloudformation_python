@@ -98,9 +98,22 @@ class VisaApplications:
                     data = ";".join(map(str, data[1]))
                     f_out.write(data + "\n")
 
-    def get_top_10_states(self):
+        def get_top_10_states(self):
         # TODO: implement method and invent idea for it
-        pass
+        output_headers = ("TOP_STATES", "NUMBER_{}_APPLICATIONS".format(self.desired_case_status), "PERCENTAGE")
+        with open(self.file_input, "r") as f:
+            header = get_header(f)
+            worksite_postal_code_ind = header.get("WORKSITE_POSTAL_CODE")
+            case_status_ind = header.get("CASE_STATUS")
+            state_code = ZipCodesUS.get_state_code("uszips.csv")
+            output_data = {}
+            count_desired_case_status = 0
+            for index, line in enumerate(f):
+                line = line.split(";")
+                line.pop()
+                if line[case_status_ind] == self.desired_case_status:
+                    count_desired_case_status += 1
+                    pass
     
 
     
