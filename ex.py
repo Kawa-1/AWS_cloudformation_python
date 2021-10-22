@@ -64,46 +64,49 @@ class VisaApplications:
         return item
 
     def write_top_10_occupations(self):
-    # TODO: implement method and invent idea for it
         output_headers = ("TOP_OCCUPATIONS", "NUMBER_{}_APPLICATIONS".format(self.desired_case_status), "PERCENTAGE")
-
-        with open(self.file_input, "r") as f:
-            header = self.get_header(f)
+        with open(self.file_input, "r") as file:
+            header = self.get_header(file)
             soc_name_ind = header.get("SOC_NAME")
             case_status_ind = header.get("CASE_STATUS")
             naics_code_ind = header.get("NAICS_CODE")
 
             output_data = {}
+            # Gather other occupations grouped by naics_code; {'54231.0': [["Some_occupaiton", 4], ["Another",2]]... }
             diff_soc_same_naics = {}
-            # Used to determine if more than one occupation for top_10_occupation occurs for specific naics_code
+            # Gather additional occupationals in spite of this in output_data
             another_top_occupation = set()
+            # naics_multi_occupations contains naics codes
+            naics_multi_occupations = set()
             count_desired_case_status = 0
 
-            for index, line in enumerate(f):
+            for line in file:
                 line = line.split(";")
                 line.pop()
                 # Percentage is being calculated on the same case_status
                 if line[case_status_ind] == self.desired_case_status:
                     count_desired_case_status += 1
                     # Handling multiple occupations for same naics_code
-
                     if output_data.get(line[naics_code_ind]) and output_data.get(line[naics_code_ind])[0] != line[soc_name_ind]:
                        if diff_soc_same_naics.get(line[naics_code_ind]) and line[soc_name_ind] in another_top_occupation:
-                           for index, occupation in enumerate(diff_soc_same_naics.get(line[naics_code_ind])):
+                           for occupation in diff_soc_same_naics.get(line[naics_code_ind]):
                                # occupation[0] is the soc_name and occupation[1] are the occurences of this specific soc_name
                                if occupation[0] == line[soc_name_ind].strip("\""):
                                    occupation[1] += 1
                                    break
 
+                       # For the first occurence of different soc_name for by same naics_code which is output_data
                        elif not diff_soc_same_naics.get(line[naics_code_ind]):
                            diff_soc_same_naics.update({line[naics_code_ind]: []})
                            diff_soc_same_naics.get(line[naics_code_ind]).append([line[soc_name_ind].strip("\""), 1])
                            another_top_occupation.add(line[soc_name_ind])
+                           naics_multi_occupations.add(line[naics_code_ind])
 
                        # If it is the first occurence of another occupation or same naics code
                        else:
                            diff_soc_same_naics.get(line[naics_code_ind]).append([line[soc_name_ind].strip("\""), 1])
                            another_top_occupation.add(line[soc_name_ind])
+                           naics_multi_occupations.add(line[naics_code_ind])
 
                     elif not output_data.get(line[naics_code_ind]):
                         output_data.update({line[naics_code_ind]: []})
@@ -115,13 +118,26 @@ class VisaApplications:
                 else:
                     continue
 
-            # TODO: Need to implement the loop to find soc_name with most occurences by naics_code
+            # The loop to find soc_name with most occurences by naics_code
+            for naics in naics_multi_occupations:
+                current_count_occup = output_data.get(naics)[1]
+                for occupation in diff_soc_same_naics.get(naics):
+                    # occupation lookalike ["Name_of_occupation", 4]
+                    output_data.get(naics)[1] += occupation[1]
+                    if occupation[1] > current_count_occup:
+                        output_data.get(naics)[0] = occupation[0]
+                        current_count_occup = occupation[1]
+                    else:
+                        continue
+
 
             # Desired sorting with descending number and ascending string, just in case if numbers are equal
             output_data = sorted(output_data.items(), key=lambda elem: (-elem[1][1], elem[1][0]))
             # Adding column involved with percentage
             output_data = list(map(lambda x: self.get_percent(x, 1, count_desired_case_status), output_data))
-
+            print(output_data)
+            print(diff_soc_same_naics)
+            print(naics_multi_occupations)
             with open("output.txt", "w") as f_out:
                 output_headers = ";".join(map(str, output_headers))
                 f_out.write(output_headers + "\n")
@@ -129,7 +145,7 @@ class VisaApplications:
                     data = ";".join(map(str, data[1]))
                     f_out.write(data + "\n")
 
-        def get_top_10_states(self):
+        def write_top_10_states(self):
         # TODO: implement method and invent idea for it
         output_headers = ("TOP_STATES", "NUMBER_{}_APPLICATIONS".format(self.desired_case_status), "PERCENTAGE")
         with open(self.file_input, "r") as f:
