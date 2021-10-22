@@ -63,7 +63,7 @@ class VisaApplications:
         item[1].append(percent_col + "%")
         return item
 
-    def get_top_10_occupations(self):
+        def write_top_10_occupations(self):
         # TODO: implement method and invent idea for it
         output_headers = ("TOP_OCCUPATIONS", "NUMBER_{}_APPLICATIONS".format(self.desired_case_status), "PERCENTAGE")
         with open(self.file_input, "r") as f:
@@ -73,18 +73,28 @@ class VisaApplications:
             naics_code_ind = header.get("NAICS_CODE")
             output_data = {}
             diff_soc_same_naics = defaultdict(list)
+            # Used to determine if additional field for top_10_occupation occurs for specific naics code 
+            optional_top_occupation = set()
             count_desired_case_status = 0
             for index, line in enumerate(f):
                 line = line.split(";")
                 line.pop()
                 if line[case_status_ind] == self.desired_case_status:
                     count_desired_case_status += 1
-                    if not output_data.get(line[naics_code_ind]):
+
+                    if output_data.get(line[naics_code_ind]) and output_data.get(line[naics_code_ind])[0] != line[soc_name_ind]:
+                       if diff_soc_same_naics.get(line[naics_code_ind]) and line[soc_name_ind] in optional_top_occupation:
+                           pass
+
+                    elif not output_data.get(line[naics_code_ind]):
                         output_data.update({line[naics_code_ind]: []})
                         output_data.get(line[naics_code_ind]).extend([line[soc_name_ind].strip("\""), 1])
 
                     else:
                         output_data.get(line[naics_code_ind])[1] += 1
+
+                else:
+                    continue
 
             # Desired sorting with descending number and ascending string, just in case equal numbers
             output_data = sorted(output_data.items(), key=lambda elem: (-elem[1][1], elem[1][0]))
