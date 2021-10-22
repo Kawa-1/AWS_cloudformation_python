@@ -66,16 +66,19 @@ class VisaApplications:
     def write_top_10_occupations(self):
     # TODO: implement method and invent idea for it
         output_headers = ("TOP_OCCUPATIONS", "NUMBER_{}_APPLICATIONS".format(self.desired_case_status), "PERCENTAGE")
+
         with open(self.file_input, "r") as f:
             header = self.get_header(f)
             soc_name_ind = header.get("SOC_NAME")
             case_status_ind = header.get("CASE_STATUS")
             naics_code_ind = header.get("NAICS_CODE")
+
             output_data = {}
             diff_soc_same_naics = {}
             # Used to determine if more than one occupation for top_10_occupation occurs for specific naics_code
             another_top_occupation = set()
             count_desired_case_status = 0
+
             for index, line in enumerate(f):
                 line = line.split(";")
                 line.pop()
@@ -83,6 +86,7 @@ class VisaApplications:
                 if line[case_status_ind] == self.desired_case_status:
                     count_desired_case_status += 1
                     # Handling multiple occupations for same naics_code
+
                     if output_data.get(line[naics_code_ind]) and output_data.get(line[naics_code_ind])[0] != line[soc_name_ind]:
                        if diff_soc_same_naics.get(line[naics_code_ind]) and line[soc_name_ind] in another_top_occupation:
                            for index, occupation in enumerate(diff_soc_same_naics.get(line[naics_code_ind])):
@@ -117,6 +121,7 @@ class VisaApplications:
             output_data = sorted(output_data.items(), key=lambda elem: (-elem[1][1], elem[1][0]))
             # Adding column involved with percentage
             output_data = list(map(lambda x: self.get_percent(x, 1, count_desired_case_status), output_data))
+
             with open("output.txt", "w") as f_out:
                 output_headers = ";".join(map(str, output_headers))
                 f_out.write(output_headers + "\n")
