@@ -5,7 +5,7 @@ from collections import defaultdict
 class ZipCodesUS:
 
     @staticmethod
-    def get_state_code(path_to_uszip: str) -> dict:
+    def get_state_codes(path_to_uszip: str) -> dict:
         """Open the file coressponding to US Zip Codes to get dict where keys are postal_codes and values are
             state_ids
 
@@ -32,9 +32,10 @@ class ZipCodesUS:
 
 class VisaApplications:
 
-    def __init__(self, file_input: str):
+    def __init__(self, file_input: str, desired_case_status: str):
         self.file_input = file_input
-
+        self.desired_case_status = desired_case_status
+        
     @staticmethod
     def get_header(header: file_handler) -> dict:
         """Read first line of colon-seperated value file (header) to get the attributes of corresponding fields from data
@@ -64,6 +65,7 @@ class VisaApplications:
         return item
 
     def write_top_10_occupations(self):
+    # TODO: implement method and invent idea for it
         output_headers = ("TOP_OCCUPATIONS", "NUMBER_{}_APPLICATIONS".format(self.desired_case_status), "PERCENTAGE")
         with open(self.file_input, "r") as file:
             header = self.get_header(file)
@@ -118,7 +120,7 @@ class VisaApplications:
                 else:
                     continue
 
-            # The loop to find soc_name with most occurences by naics_code
+            # Loop to find soc_name with most occurences by naics_code
             for naics in naics_multi_occupations:
                 current_count_occup = output_data.get(naics)[1]
                 for occupation in diff_soc_same_naics.get(naics):
@@ -133,34 +135,58 @@ class VisaApplications:
 
             # Desired sorting with descending number and ascending string, just in case if numbers are equal
             output_data = sorted(output_data.items(), key=lambda elem: (-elem[1][1], elem[1][0]))
+            output_data = output_data[:10]
+            print(output_data)
             # Adding column involved with percentage
             output_data = list(map(lambda x: self.get_percent(x, 1, count_desired_case_status), output_data))
             print(output_data)
             print(diff_soc_same_naics)
             print(naics_multi_occupations)
-            with open("output.txt", "w") as f_out:
+            with open("top_10_occupations.txt", "w") as f_out:
                 output_headers = ";".join(map(str, output_headers))
                 f_out.write(output_headers + "\n")
                 for data in output_data:
                     data = ";".join(map(str, data[1]))
                     f_out.write(data + "\n")
 
-        def write_top_10_states(self):
+    def write_top_10_states(self):
         # TODO: implement method and invent idea for it
         output_headers = ("TOP_STATES", "NUMBER_{}_APPLICATIONS".format(self.desired_case_status), "PERCENTAGE")
-        with open(self.file_input, "r") as f:
-            header = get_header(f)
+
+        with open(self.file_input, "r") as file:
+            header = self.get_header(file)
             worksite_postal_code_ind = header.get("WORKSITE_POSTAL_CODE")
             case_status_ind = header.get("CASE_STATUS")
-            state_code = ZipCodesUS.get_state_code("uszips.csv")
+            state_code = ZipCodesUS.get_state_codes("others/uszips.csv")
+
             output_data = {}
             count_desired_case_status = 0
-            for index, line in enumerate(f):
+            for line in file:
                 line = line.split(";")
                 line.pop()
                 if line[case_status_ind] == self.desired_case_status:
                     count_desired_case_status += 1
-                    pass
-    
 
-    
+                    state = state_code.get(line[worksite_postal_code_ind])
+                    if state in output_data:
+                        output_data.update({state: [output_data.get(state)[0] + 1]})
+
+                    else:
+                        output_data.update({state: [1]})
+
+            output_data = sorted(output_data.items(), key=lambda elem: (-elem[1][0], elem[0]))
+            output_data = output_data[:10]
+            output_data = list(map(lambda x: self.get_percent(x, 0, count_desired_case_status), output_data))
+            print(output_data)
+            with open("top_10_states.txt", "w") as f_out:
+                output_headers = ";".join(map(str, output_headers))
+                f_out.write(output_headers + "\n")
+                for data in output_data:
+                    state_id = data[0]
+                    data = ";".join(map(str, data[1]))
+                    f_out.write(state_id + ";" + data + "\n")    
+
+
+ob = VisaApplications("input_files/input1.txt", "CERTIFIED")
+ob.write_top_10_states()
+ob.write_top_10_occupations()
