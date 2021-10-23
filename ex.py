@@ -1,6 +1,5 @@
 from __future__ import annotations
-# Probably defaultdict will be useful in my case...
-from collections import defaultdict
+
 
 class ZipCodesUS:
 
@@ -184,9 +183,10 @@ class VisaApplications:
                 for data in output_data:
                     state_id = data[0]
                     data = ";".join(map(str, data[1]))
-                    f_out.write(state_id + ";" + data + "\n")    
+                    f_out.write(state_id + ";" + data + "\n")
 
 
-ob = VisaApplications("input_files/input1.txt", "CERTIFIED")
-ob.write_top_10_states()
-ob.write_top_10_occupations()
+if __name__ == "__main__":
+    ob = VisaApplications("input_files/input1.txt", "CERTIFIED")
+    ob.write_top_10_states()
+    ob.write_top_10_occupations()
