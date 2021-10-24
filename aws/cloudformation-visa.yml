@@ -8,8 +8,8 @@ Resources:
     Properties:
       VersioningConfiguration:
         Status: Enabled
-      AccessControl: Private
-      BucketName: "S3Bucket"
+      AccessControl: private
+      BucketName: "s3-bucket-task"
 
   LoggingBucket:
     Type: "AWS::S3::Bucket"
@@ -19,4 +19,4 @@ Resources:
 Outputs:
   BucketName:
     Value: !Ref S3Bucket
-    Description: Bucket task with logging configuration and versioning
+    Description: Bucket-task with versioning and bucket for logging
