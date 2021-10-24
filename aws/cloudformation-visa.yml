@@ -2,7 +2,21 @@ AWSTemplateFormatVersion: "2010-09-09"
 Description: s3-bucket-task; input and output files
 
 Resources:
-  Bucket:
-    Type: AWS::S3::Bucket
+  S3Bucket:
+    Type: "AWS::S3::Bucket"
+    DeletionPolicy: Retain
     Properties:
-      BucketName: "s3-bucket-task"
+      VersioningConfiguration:
+        Status: Enabled
+      AccessControl: Private
+      BucketName: "S3Bucket"
+
+  LoggingBucket:
+    Type: "AWS::S3::Bucket"
+    Properties:
+      AccessControl: LogDeliveryWrite
+
+Outputs:
+  BucketName:
+    Value: !Ref S3Bucket
+    Description: Bucket task with logging configuration and versioning
