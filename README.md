@@ -8,13 +8,13 @@ what exactly is being wanted to be analyzed by them. So on my own i decided to g
 most times in our data, saving other occupations in form of number_certified_applications of course, didn't want to 
 lose them. To be honest i have also spent some time trying to figure out how to sort with core python the data prioritizing
 the number_certified_applications descending and then string - occupation ascending, however lambda helped me here very well.
-<br/>
+<br/><br/>
 Starting this task i thought that i will be able to create one function to handle top 10 occupations and top 10 states.
 Nonetheless following the rules of task i found it hard to make dependency between desired layout of state_id e.g. FL, GA with 
 worksite_postal_code. That is why i decided to get official kinda official Zip Codes Database in csv from: https://simplemaps.com/data/us-zips site.
 It helped me a lot to somehow connect worksite_postal_code to specific state_id and it was mainly reason that i was not able
 to create one function to get top 10 occupation, top 10 states and things which would like analyze in the future...
-<br/>
+<br/><br/>
 AWS part was also interesting even though i have not finished it in 100%. I got to know how to use buckets and what kind
 of properties of it exists as well as how does AWS Lambda work. Firstly i was focused on creating algorithm to get desired
 output in my local environment and was not completely aware how does AWS lambda works, despite this i got my first experience
