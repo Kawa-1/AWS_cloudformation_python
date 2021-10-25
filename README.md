@@ -16,6 +16,6 @@ It helped me a lot to somehow connect worksite_postal_code to specific state_id 
 to create one function to get top 10 occupation, top 10 states and things which would like analyze in the future...
 <br/><br/>
 AWS part was also interesting even though i have not finished it in 100%. I got to know how to use buckets and what kind
-of properties of it exists as well as how does AWS Lambda work. Firstly i was focused on creating algorithm to get desired
+of properties of it exists as well as how does AWS Lambda work. Had to add the role to the AWS Lambda in IAM to let it access my buckets because such thing was not allowed by default. Firstly i was focused on creating algorithm to get desired
 output in my local environment and was not completely aware how does AWS lambda works, despite this i got my first experience
 with boto3 and for future i would approach such problem in a little bit different way to get all things done correctly.
