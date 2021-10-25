@@ -16,7 +16,8 @@ class ZipCodesUS:
             Returns
             -------
             dict
-                a dictionary with keys as postal codes and values as state_ids"""
+                a dictionary with keys as postal codes and values as state_ids
+        """
 
         with open(path_to_uszip, "r") as f:
             state_code = {}
@@ -30,8 +31,18 @@ class ZipCodesUS:
             return state_code
 
 class VisaApplications:
+    """VisaApplications is the Class involved with analysis of US visa application"""
 
     def __init__(self, file_input: str, desired_case_status: str):
+        """Parameters:
+            ---------
+                file_input: str
+                    It is the path for the file involved with US visa application
+                    which we want analyze. It must be colon-seperated file.
+                desired_case_status: str
+                    It is the attribute of person's visa application which we want to analyze in overall. We won't take
+                    into consideration other applications which have different desired_case_status than we specified
+        """
         self.file_input = file_input
         self.desired_case_status = desired_case_status
         
@@ -48,7 +59,8 @@ class VisaApplications:
             -------
             dict
                 a dictionary of attributes as keys and corresponding indexes in data section as value
-                >>> {'CASE_NUMBER': 1, 'CASE_STATUS': 2, 'CASE_SUBMITTED': 3,...}"""
+                >>> {'CASE_NUMBER': 1, 'CASE_STATUS': 2, 'CASE_SUBMITTED': 3,...}
+        """
 
         header = header.readline()
         header = header.split(';')
@@ -59,13 +71,31 @@ class VisaApplications:
 
     @staticmethod
     def get_percent(item: list, index: int, totality: int) -> list:
+        """Add new coulumn to list which describes that certain attribute has in overall acceptance
+
+        Parameters:
+        ----------
+        item: list
+            Pass here list to which we want add additional column involved with percentage
+        index: int
+            Our interested column on which we calculate overall acceptance per record
+        totality: int
+            Sum of n-th column (n==index) for which we are interested
+
+        Returns:
+        -------
+        item: list
+            A list of a our record with new column - percentage
+        """
+
         percent_col = "{:.1f}".format(item[1][index]/totality * 100)
         item[1].append(percent_col + "%")
         return item
 
-    def write_top_10_occupations(self):
-    # TODO: implement method and invent idea for it
+    def write_top_10_occupations(self) -> NoReturn:
+        """Writing to new file top 10 occupations based on desired case status"""
         output_headers = ("TOP_OCCUPATIONS", "NUMBER_{}_APPLICATIONS".format(self.desired_case_status), "PERCENTAGE")
+
         with open(self.file_input, "r") as file:
             header = self.get_header(file)
             soc_name_ind = header.get("SOC_NAME")
@@ -135,12 +165,9 @@ class VisaApplications:
             # Desired sorting with descending number and ascending string, just in case if numbers are equal
             output_data = sorted(output_data.items(), key=lambda elem: (-elem[1][1], elem[1][0]))
             output_data = output_data[:10]
-            print(output_data)
             # Adding column involved with percentage
             output_data = list(map(lambda x: self.get_percent(x, 1, count_desired_case_status), output_data))
-            print(output_data)
-            print(diff_soc_same_naics)
-            print(naics_multi_occupations)
+
             with open("top_10_occupations.txt", "w") as f_out:
                 output_headers = ";".join(map(str, output_headers))
                 f_out.write(output_headers + "\n")
@@ -148,8 +175,8 @@ class VisaApplications:
                     data = ";".join(map(str, data[1]))
                     f_out.write(data + "\n")
 
-    def write_top_10_states(self):
-        # TODO: implement method and invent idea for it
+    def write_top_10_states(self) -> NoReturn:
+        """"Write to new file top 10 states based on desired case status"""
         output_headers = ("TOP_STATES", "NUMBER_{}_APPLICATIONS".format(self.desired_case_status), "PERCENTAGE")
 
         with open(self.file_input, "r") as file:
@@ -176,7 +203,7 @@ class VisaApplications:
             output_data = sorted(output_data.items(), key=lambda elem: (-elem[1][0], elem[0]))
             output_data = output_data[:10]
             output_data = list(map(lambda x: self.get_percent(x, 0, count_desired_case_status), output_data))
-            print(output_data)
+
             with open("top_10_states.txt", "w") as f_out:
                 output_headers = ";".join(map(str, output_headers))
                 f_out.write(output_headers + "\n")
