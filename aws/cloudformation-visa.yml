@@ -14,9 +14,9 @@ Resources:
   LoggingBucket:
     Type: "AWS::S3::Bucket"
     Properties:
-      AccessControl: LogDeliveryWrite
+      AccessControl: log-delivery-write
 
 Outputs:
   BucketName:
     Value: !Ref S3Bucket
-    Description: Bucket-task with versioning and bucket for logging
+    Description: Bucket-task with versioning
